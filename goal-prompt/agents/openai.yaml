@@ -1,0 +1,4 @@
+interface:
+  display_name: "Goal Prompt"
+  short_description: "Write precise outcome-only Codex goals"
+  default_prompt: "Use $goal-prompt to turn this context and threat model into a precise, persistent, outcome-only goal."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Threat Model"
+  short_description: "Turn audit context into evidence-bound threats"
+  default_prompt: "Use $create-threat-model to turn the completed audit context in this workspace into an evidence-bound threat model."
