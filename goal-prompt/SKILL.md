@@ -1,11 +1,11 @@
 ---
 name: goal-prompt
-description: Convert natural-language objectives, existing repository context, and threat models into copy-paste-ready Codex goal prompts that define a precise end state, qualification boundaries, required evidence or artifacts, and persistent completion conditions without prescribing methods. Use when the user invokes $goal-prompt or asks to formulate or rewrite a security-audit, research, debugging, or engineering objective as an outcome-only persistent Codex goal.
+description: Convert natural-language objectives, existing repository context, and threat models into copy-paste-ready Codex goal prompts of at most two paragraphs that combine a precise end state and qualification boundary with a compact, context-grounded execution frame, proof requirements, and persistent completion conditions while adversarially closing lazy-completion loopholes. Use when the user invokes $goal-prompt or asks to formulate or rewrite a security-audit, research, debugging, or engineering objective as a precise persistent Codex goal.
 ---
 
 # Goal Prompt
 
-Generate a goal prompt, not a plan. Return only the finished prompt unless the user asks for commentary. Do not undertake the goal or call `create_goal` unless the user explicitly asks to start or register it.
+Generate a goal prompt, not a plan. Silently red-team and revise the draft before returning it. Return only the finished prompt unless the user asks for commentary. Do not undertake the goal or call `create_goal` unless the user explicitly asks to start or register it.
 
 ## Resolve the Inputs
 
@@ -31,7 +31,7 @@ Decompose the inputs into atomic statements and classify each statement as one o
 - **Termination**: the exact success, persistence, stop, or permitted blocker condition.
 - **Method**: an order of work, intermediate task, investigative lead, tool, technique, location to inspect, or strategy.
 
-Retain the first six classes. Remove the method class. When a method statement implies a genuine acceptance property, retain only that property and discard the procedure. If removing a method statement does not change whether the final result passes or fails, omit it entirely.
+Retain the first six classes as the acceptance specification. Treat the method class separately: discard detailed procedure, but preserve a compact execution frame that prevents superficial coverage, unsupported assumptions, skipped deduplication, or inadequate proof. Keep method guidance grounded in the request and authoritative context; do not turn it into additional qualification unless the user explicitly makes the route part of success.
 
 Normalize the retained facts into these slots:
 
@@ -57,6 +57,18 @@ PERMITTED_BLOCKER_CONDITION
 
 Populate only supported or explicitly requested slots. Make each populated slot concrete enough to affect a pass/fail decision. Preserve exact quantifiers and define what counts toward them.
 
+Separately populate only the applicable execution-frame slots:
+
+```text
+INITIAL_MODEL_OR_BOUNDARY_CHECK
+PRIORITY_SURFACE_CATEGORIES
+EXCLUDED_ASSUMPTIONS
+DEDUPLICATION_SOURCES
+MINIMAL_SAFE_PROOF
+```
+
+Derive these from the actual codebase, audit context, or user request. Omit unsupported categories rather than copying a generic checklist.
+
 ## Construct the Acceptance Predicate
 
 Treat the goal as a Boolean acceptance predicate rather than a list of activities:
@@ -75,7 +87,36 @@ SUCCESS :=
 
 Adapt the predicate to the populated slots; do not mechanically include absent dimensions. Define nearby non-results when they could be mistaken for success. Express novelty as a property of the accepted result, evidence as what must be demonstrably true, and delivery as what must exist—not as instructions for obtaining any of them.
 
-Optimize for completeness of the acceptance boundary, not brevity. Use as many words as necessary to make the predicate unambiguous, but include no sentence that lacks a testable effect on acceptance, delivery, or termination.
+Optimize for completeness of the acceptance boundary, not brevity. Spend as many tokens as needed to define the outcome precisely; the paragraph limit constrains structure, not rigor or length. Include no sentence that lacks a testable effect on acceptance, delivery, or termination.
+
+## Calibrate Precision
+
+Define the minimum sufficient acceptance boundary:
+
+- Make the outcome precise enough that an independent reviewer can decide pass or fail from the delivered result and evidence.
+- Keep the solution space broad enough that any result satisfying the real objective can qualify, regardless of the route used to obtain it.
+- Do not make qualification depend on a suspected root cause, implementation, file, subsystem, technique, tool, sequence, or intermediate artifact unless the user explicitly makes it part of the accepted outcome. The execution frame may prioritize evidence-backed surface categories without excluding other qualifying routes.
+- Do not use subjective terms such as "thorough," "robust," "meaningful," or "high quality" without translating them into observable qualification or evidence.
+- Do not add exclusions, attacker limitations, environmental assumptions, severity thresholds, or proof burdens unsupported by the request or authoritative context.
+- Do not omit decisive target, scope, cardinality, qualification, evidence, delivery, or termination facts merely to make the goal shorter.
+
+Treat both overconstraint and ambiguity as defects. A too-narrow goal rejects valid outcomes for irrelevant reasons; a vague goal permits weak substitutes that do not satisfy the user's objective.
+
+## Red-Team Lazy Completion
+
+Before rendering, assume the future executing model will choose the easiest literal interpretation, minimize work, and stop at the earliest defensible point. Identify plausible ways it could claim completion without delivering the intended outcome, including:
+
+- substituting activity, a plan, a lead, a candidate, or partial progress for the required result;
+- satisfying cardinality with duplicates, weaker results, out-of-scope results, or multiple descriptions of the same root result;
+- silently narrowing the target, scope, actor, operating state, impact, novelty boundary, or evidence obligation;
+- treating unverified claims, absence of contradiction, tool output, or confidence language as proof;
+- omitting a required artifact or delivering one that cannot independently establish qualification;
+- treating dead ends, recoverable errors, effort spent, token or time pressure, or "nothing found yet" as a terminal state;
+- weakening, reinterpreting, or changing the criteria after work begins in order to finish.
+
+Close each applicable loophole primarily by revising the acceptance predicate, nearby non-results, evidence requirements, or termination semantics. Use a compact execution-frame instruction only when it prevents shallow coverage, an invalid assumption, skipped novelty checking, or proof that cannot establish the required impact. Add only content grounded in the user's objective or authoritative context.
+
+Then red-team the revision in the opposite direction: remove any defensive clause that unnecessarily dictates a route, freezes an unsupported hypothesis, excludes a legitimate qualifying result, or demands evidence beyond what is needed to establish the outcome. Repeat both passes until no plausible lazy shortcut remains and every retained restriction affects genuine acceptance.
 
 ## Add Persistence Semantics
 
@@ -90,21 +131,29 @@ Make success the only completion state unless the user explicitly permits anothe
 - Keep "no result found yet" distinct from success.
 - Include a blocker terminal state only when requested, and define it using an external condition plus evidence that no safe in-scope continuation remains.
 
-## Eliminate Hints About How
+## Constrain the Execution Frame
 
-Reject any generated sentence that prescribes phases, ordering, intermediate tasks, prioritization, investigative heuristics, attack-surface checklists, candidate-generation strategies, files or subsystems to inspect, searches, tools, commands, tests, techniques, or proof-construction methods.
+Allocate most prompt language to the outcome, qualification boundary, evidence, deliverable, and persistence. Keep method guidance concise and high leverage. In a security-audit goal, the second paragraph should normally:
 
-Do not copy attack ideas from the threat model. Carry forward only facts that alter qualification, especially actor powers, trust boundaries, operating configuration, allowed control, and excluded preconditions.
+1. Require a concise threat model of realistic entrypoints, protected assets, and trust boundaries before candidate acceptance.
+2. Prioritize a short list of code-path or attack-surface categories supported by the repository context, while leaving other qualifying routes open.
+3. State which attacker-controlled inputs, privileges, configurations, or prior capabilities may not be assumed.
+4. Require deduplication against the applicable local known-finding artifacts and current external issue or pull-request sources when novelty matters.
+5. Require a minimal safe proof that establishes the exact qualifying impact under the stated operating configuration.
+
+Adapt the same pattern for research, debugging, or engineering goals: model the relevant boundary, name only the highest-value evidence-backed surfaces, exclude invalid assumptions, check applicable prior work, and require the smallest artifact that proves the outcome.
+
+Do not prescribe commands, tools, detailed phases, exhaustive checklists, exact functions, speculative exploit ideas, or proof-construction mechanics unless the user explicitly requires them. Do not copy candidate attack hypotheses from a threat model; convert supported context into broad surface priorities and qualification boundaries. Treat prioritization as coverage guidance, not a reason to ignore another route that satisfies the goal.
 
 For every sentence, apply both tests:
 
-1. Would changing or removing this sentence change whether the final result qualifies, whether the deliverable is complete, or whether the goal may terminate?
-2. Does this sentence constrain what must be true, rather than choosing a route for making it true?
+1. Does it affect acceptance, evidence, delivery, persistence, or materially prevent superficial coverage or invalid proof?
+2. Does it leave open every route that can legitimately satisfy the user's objective unless the user explicitly excluded that route?
 
-Delete the sentence unless both answers are yes.
+Delete or broaden the sentence unless both answers are yes.
 
 ## Render the Goal
 
-Write self-contained imperative prose. Order the content as the required result, qualification and threat boundary, evidence and deliverable, then persistence and termination. Prefer dense paragraphs; use structure only when needed to keep the acceptance predicate unambiguous.
+Write self-contained imperative prose in at most two paragraphs, with no headings or lists. Use the first paragraph for the complete outcome: result, scope, qualification boundary, relevant actor and operating assumptions, non-qualifying substitutes, report contents, and evidence needed for independent acceptance. Use the second paragraph, in this order, for the compact execution frame: initial threat or boundary model, context-grounded priority surfaces, excluded assumptions, applicable deduplication, minimal safe proof, artifact destination, and persistence and termination. State that leads, partial proofs, duplicates, weaker results, dead ends, recoverable failures, and "nothing found yet" are non-terminal when applicable; preserve all decisive constraints throughout the work and stop at the requested cardinality. A simple non-audit goal may omit inapplicable elements, but never use more than two paragraphs.
 
 Output only the finished goal prompt. Add no preface, analysis, examples, quotation marks, or code fence. Do not mention this skill or explain the transformation.
