@@ -6,7 +6,7 @@ usage() {
   cat <<'EOF'
 Usage: scripts/link-skills.sh [--target DIRECTORY] [SKILL_NAME ...]
 
-Symlink repository skills into the Codex skills directory.
+Symlink repository skills into an agent's skills directory.
 
 With no skill names, link every direct child directory containing SKILL.md.
 The default destination is $CODEX_HOME/skills, or ~/.codex/skills when
@@ -120,4 +120,4 @@ for index in "${!skill_sources[@]}"; do
   ((linked_count += 1))
 done
 
-echo "Done: ${linked_count} new link(s). Skills are available to new Codex turns."
+echo "Done: ${linked_count} new link(s). Skills are available to new turns."

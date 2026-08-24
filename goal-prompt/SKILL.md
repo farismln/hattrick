@@ -1,11 +1,11 @@
 ---
 name: goal-prompt
-description: Convert natural-language objectives, existing repository context, and threat models into copy-paste-ready Codex goal prompts of at most two paragraphs that combine a precise end state and qualification boundary with a compact, context-grounded execution frame, proof requirements, and persistent completion conditions while adversarially closing lazy-completion loopholes, including parking plausible off-goal findings in a markdown lead ledger so they are preserved without derailing the primary goal. Use when the user invokes $goal-prompt or asks to formulate or rewrite a security-audit, research, debugging, or engineering objective as a precise persistent Codex goal.
+description: Convert natural-language objectives, existing repository context, and threat models into copy-paste-ready persistent goal prompts of at most two paragraphs that combine a precise end state and qualification boundary with a compact, context-grounded execution frame, proof requirements, and persistent completion conditions while adversarially closing lazy-completion loopholes, including parking plausible off-goal findings in a markdown lead ledger so they are preserved without derailing the primary goal. Use when the user invokes $goal-prompt or asks to formulate or rewrite a security-audit, research, debugging, or engineering objective as a precise persistent goal.
 ---
 
 # Goal Prompt
 
-Generate a goal prompt, not a plan. Silently red-team and revise the draft before returning it. Return only the finished prompt unless the user asks for commentary. Do not undertake the goal or call `create_goal` unless the user explicitly asks to start or register it.
+Generate a goal prompt, not a plan. Silently red-team and revise the draft before returning it. Return only the finished prompt unless the user asks for commentary. Do not undertake the goal or start or register it unless the user explicitly asks to.
 
 ## Resolve the Inputs
 

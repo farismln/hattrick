@@ -1,4 +1,4 @@
 interface:
   display_name: "Goal Prompt"
-  short_description: "Write precise, persistent Codex goals"
+  short_description: "Write precise, persistent goals"
   default_prompt: "Use $goal-prompt to turn this context and threat model into a precise, persistent goal with a concise execution frame."
