@@ -5,7 +5,7 @@ Hattrick is a small collection of reusable [Codex skills](https://learn.chatgpt.
 | Skill | Purpose |
 | --- | --- |
 | `create-threat-model` | Turns completed audit context into an evidence-bound `threat-model.md`, including assets, invariants, actors, trust boundaries, lifecycle models, and testable threat hypotheses. It does not hunt for or report vulnerabilities. |
-| `goal-prompt` | Rewrites an objective and its available context as a precise, copy-paste-ready Codex goal prompt with explicit acceptance, evidence, scope, and completion conditions. It does not execute or register the resulting goal. |
+| `goal-prompt` | Rewrites an objective and its available context as a precise, copy-paste-ready Codex goal prompt with explicit acceptance, evidence, scope, and completion conditions, and instructs the pursuing goal to append plausible off-goal findings to a single `leads/ledger.md` markdown ledger (issue, evidence state, blocker) instead of losing or derailing on them. It does not execute or register the resulting goal. |
 
 Each skill is stored in its own directory as a `SKILL.md` file. The installer makes the skills available to Codex by symlinking those directories into the Codex skills directory, so changes made in this checkout are reflected without reinstalling.
 
@@ -71,6 +71,8 @@ Use $goal-prompt to turn this objective into a precise persistent Codex goal: fi
 ```
 
 The response is a self-contained goal prompt of at most two paragraphs. Copy it into a new turn, or explicitly ask Codex to start or register it if that is what you want.
+
+When the objective can surface findings that fail the goal's acceptance criteria, the generated prompt instructs the pursuing model to append each plausible off-goal finding to the single `leads/ledger.md` ledger following `leads/LEDGER-TEMPLATE.md` — recording the issue, why it is off-goal, its evidence state, and the blocker that would confirm it — and then continue the primary goal. Parked leads do not count toward success; they are preserved for follow-up goals.
 
 ## Updating and uninstalling
 
