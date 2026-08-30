@@ -9,8 +9,8 @@ Usage: scripts/link-skills.sh [--target DIRECTORY] [SKILL_NAME ...]
 Symlink repository skills into an agent's skills directory.
 
 With no skill names, link every direct child directory containing SKILL.md.
-The default destination is $CODEX_HOME/skills, or ~/.codex/skills when
-CODEX_HOME is unset. Use --target to select another directory.
+The default destination is ~/.agents/skills, or $CODEX_HOME/skills when
+CODEX_HOME is set. Use --target to select another directory.
 EOF
 }
 
@@ -56,7 +56,7 @@ elif [[ -n "${CODEX_HOME:-}" ]]; then
   skills_dir="${CODEX_HOME}/skills"
 else
   [[ -n "${HOME:-}" ]] || fail "HOME is unset; pass --target or set CODEX_HOME"
-  skills_dir="${HOME}/.codex/skills"
+  skills_dir="${HOME}/.agents/skills"
 fi
 
 if ((${#requested_skills[@]} == 0)); then

@@ -23,7 +23,9 @@ From the repository root, install every included skill:
 ./install.sh
 ```
 
-By default, the installer links skills into `$CODEX_HOME/skills` when `CODEX_HOME` is set, or `~/.codex/skills` otherwise. Skills become available in new turns.
+By default, the installer links skills into `~/.agents/skills`; when `CODEX_HOME` is set it uses `$CODEX_HOME/skills` instead. Skills become available in new turns.
+
+To install through an agent instead of the script, point it at [INSTALLATION.md](INSTALLATION.md): it contains self-contained instructions the agent follows to detect its own harness and link the skills into that harness's skills directory, with the same conflict rules.
 
 To install only selected skills, pass their directory names:
 
@@ -79,8 +81,8 @@ Because installation uses symlinks, updating this checkout updates the installed
 To uninstall a skill, remove only its symlink from your skills directory, for example:
 
 ```bash
-rm ~/.codex/skills/goal-prompt
-rm ~/.codex/skills/create-threat-model
+rm ~/.agents/skills/goal-prompt
+rm ~/.agents/skills/create-threat-model
 ```
 
-If you installed through `$CODEX_HOME` or `--target`, remove the links from that directory instead.
+If you installed through `CODEX_HOME` or `--target`, remove the links from that directory instead.
